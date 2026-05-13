@@ -1,0 +1,66 @@
+name: Fetch odds & deploy dashboard
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: fetch-and-deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  fetch-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      # Step 1: Python fetches Polymarket API → writes to Turso
+      - name: Fetch odds from Polymarket
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: python3 scripts/fetch_odds.py
+
+      # Step 2: Node.js reads Turso → builds static site
+      - name: Build static dashboard
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: node scripts/build_static.js
+
+      # Step 3: Deploy dist/ to gh-pages branch
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true
+          commit_message: 'Update odds data'

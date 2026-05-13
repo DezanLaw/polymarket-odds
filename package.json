@@ -1,0 +1,14 @@
+{
+  "name": "polymarket-odds",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "init-db": "node scripts/init_db.js",
+    "build": "node scripts/build_static.js",
+    "fetch": "python3 scripts/fetch_odds.py"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.0"
+  }
+}
