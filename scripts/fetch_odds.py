@@ -22,7 +22,8 @@ from datetime import datetime, timezone
 import libsql_client
 
 # ---- Config ----
-TURSO_URL = os.environ.get("TURSO_DATABASE_URL", "")
+_raw_url = os.environ.get("TURSO_DATABASE_URL", "")
+TURSO_URL = _raw_url.replace("libsql://", "https://")
 TURSO_TOKEN = os.environ.get("TURSO_AUTH_TOKEN", "")
 GAMMA_API = "https://gamma-api.polymarket.com"
 
