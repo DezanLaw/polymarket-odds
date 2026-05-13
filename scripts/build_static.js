@@ -187,7 +187,7 @@ const detailKey="rule"+(i+1)+"_detail";const detail=m[detailKey]||"";
 return'<div class="ru '+(f?"f":"o")+'"><span class="rk">R'+(i+1)+'</span><div class="rt"><span class="nm">'+RN[k]+"</span>"+(f&&detail?"<br><span class=dt>"+detail+"</span>":f?" — 觸發":" — 未觸發")+"</div></div>"}).join("");
 const title=m.event_title||((m.home_team||"")+(m.away_team?" — "+m.away_team:""));
 const url=m.polymarket_url||"#";
-return'<div class="cd '+cls+'" onclick="this.classList.toggle(\'exp\')"><div class="cd-h"><div><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span class="lb" style="color:'+lc+";background:"+lc+'18">'+(m.league||m.sport||"")+'</span>'+
+return'<div class="cd '+cls+'" onclick="this.classList.toggle(&apos;exp&apos;)"><div class="cd-h"><div><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span class="lb" style="color:'+lc+";background:"+lc+'18">'+(m.league||m.sport||"")+'</span>'+
 (m.game_date?'<span style="font-size:11px;color:#6b7280">'+m.game_date.split("T")[0]+'</span>':"")+
 '</div><div class="mt">'+title+'</div></div><div class="sb"><div class="la" style="color:'+cc+'">'+cn+'</div><div class="sc" style="color:'+cc+'">'+s+'<span>/4</span></div></div></div>'+
 '<div class="og"><div class="ob'+(m.suggested_side==="yes"?" sg":"")+'"><div class="tl" style="color:#10b981">YES'+(m.suggested_side==="yes"?" ★":"")+'</div>'+
