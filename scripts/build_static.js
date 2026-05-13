@@ -172,28 +172,37 @@ h1{font-size:24px;font-weight:800;letter-spacing:-.5px;color:#f9fafb}
 <div class="gd" id="grid"><div style="text-align:center;padding:40px;color:#374151">載入中...</div></div>
 <div class="ft">研究用途 · Turso Cloud + GitHub Pages</div>
 <script>
-const RN={rule1_sustained_drift:"持續下調",rule2_line_rejection:"讓分線被拒絕",rule3_opening_overreaction:"開盤過度反應",rule4_counter_trend:"逆向走勢"};
-const LC={NBA:"#c9082a",EPL:"#3d195b","La Liga":"#ee8707","Serie A":"#024494",Bundesliga:"#d20515","Ligue 1":"#091c3e",UCL:"#1a1a6b",MLS:"#808080",Football:"#4b5563"};
-const sw=o=>o>=1.80&&o<=1.95;
-const n2=(v)=>Number(v||0).toFixed(2);
+const RN={rule1_sustained_drift:"動量訊號",rule2_line_rejection:"價格反轉",rule3_opening_overreaction:"聰明錢",rule4_counter_trend:"逆向價值"};
+const LC={NBA:"#c9082a",EPL:"#3d195b","La Liga":"#ee8707","Serie A":"#024494",Bundesliga:"#d20515","Ligue 1":"#091c3e",UCL:"#1a1a6b",MLS:"#808080","World Cup":"#004c99",NFL:"#013369",MLB:"#002d72",NHL:"#000",Tennis:"#2d6a4f",F1:"#e10600",Sports:"#6b7280",Awards:"#d4a017",NCAA:"#ff6600"};
+const pct=(v)=>(Number(v||0)*100).toFixed(1)+"%";
 function rc(m){
 const s=m.signal_score||0,cn=m.confidence||"NO_BET",cc=s>=2?"#10b981":s===1?"#f59e0b":"#6b7280";
 const cls=s>=2?"strong":s===1?"lean":"",lc=LC[m.league]||"#6b7280";
-const oh=Number(m.open_home_odds||m.home_odds||0),ch=Number(m.home_odds||0);
-const oa=Number(m.open_away_odds||m.away_odds||0),ca=Number(m.away_odds||0);
-const dh=oh-ch,da=oa-ca;
+const yNow=Number(m.home_price||0),nNow=Number(m.away_price||0);
+const yOpen=Number(m.open_home_odds?1/m.open_home_odds:m.home_price||0);
+const chg=yNow-yOpen;
 const rks=["rule1_sustained_drift","rule2_line_rejection","rule3_opening_overreaction","rule4_counter_trend"];
-const rh=rks.map((k,i)=>{const f=m[k]===1||m[k]==="1";const dk=k.replace(/^rule\\d_/,"rule"+(i+1)+"_");
-return'<div class="ru '+(f?"f":"o")+'"><span class="rk">R'+(i+1)+'</span><div class="rt"><span class="nm">'+RN[k]+"</span>"+(f?"<br><span class=dt>"+(m[dk.replace(/^(rule\\d)_.*/,"$1_detail")]||m[k.replace(/^(rule\\d_).*/, "$1detail")]||"觸發")+"</span>":" — 未觸發")+"</div></div>"}).join("");
-return'<div class="cd '+cls+'" onclick="this.classList.toggle(\'exp\')"><div class="cd-h"><div><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span class="lb" style="color:'+lc+";background:"+lc+'18">'+
-(m.league||"")+'</span><span style="font-size:11px;color:#6b7280">'+(m.game_date||"")+'</span></div><div class="mt">'+(m.home_team||"")+' <span style="color:#4b5563;font-weight:400">vs</span> '+(m.away_team||"")+
-'</div></div><div class="sb"><div class="la" style="color:'+cc+'">'+cn+'</div><div class="sc" style="color:'+cc+'">'+s+'<span>/4</span></div></div></div><div class="og"><div class="ob'+(m.suggested_side==="home"?" sg":"")+'"><div class="tl">'+
-(m.home_team||"Home")+(m.suggested_side==="home"?" ★":"")+'</div><div class="or"><label>開盤</label><span class="ov nm">'+n2(oh)+'</span></div><div class="or"><label>收盤</label><span class="ov '+(sw(ch)?"sw":"nm")+'">'+n2(ch)+
-'</span></div><div class="or"><label>漂移</label><span class="dr '+(dh>0?"p":dh<0?"n":"z")+'">'+(dh>0?"▼":dh<0?"▲":"—")+" "+Math.abs(dh).toFixed(2)+'</span></div></div><div class="ob'+(m.suggested_side==="away"?" sg":"")+
-'"><div class="tl">'+(m.away_team||"Away")+(m.suggested_side==="away"?" ★":"")+'</div><div class="or"><label>開盤</label><span class="ov nm">'+n2(oa)+'</span></div><div class="or"><label>收盤</label><span class="ov '+
-(sw(ca)?"sw":"nm")+'">'+n2(ca)+'</span></div><div class="or"><label>漂移</label><span class="dr '+(da>0?"p":da<0?"n":"z")+'">'+(da>0?"▼":da<0?"▲":"—")+" "+Math.abs(da).toFixed(2)+'</span></div></div></div><div class="rl">'+rh+
-'<div class="me"><span>24h Vol: <span class="v">'+(m.volume_24h?"$"+(Number(m.volume_24h)/1000).toFixed(0)+"K":"—")+'</span></span><span style="color:#374151">|</span><span>概率: <span class="v">'+
-(m.home_price?(Number(m.home_price)*100).toFixed(0)+"%":"—")+" / "+(m.away_price?(Number(m.away_price)*100).toFixed(0)+"%":"—")+"</span></span></div></div></div>";}
+const rh=rks.map((k,i)=>{const f=m[k]===1||m[k]==="1";
+const detailKey="rule"+(i+1)+"_detail";const detail=m[detailKey]||"";
+return'<div class="ru '+(f?"f":"o")+'"><span class="rk">R'+(i+1)+'</span><div class="rt"><span class="nm">'+RN[k]+"</span>"+(f&&detail?"<br><span class=dt>"+detail+"</span>":f?" — 觸發":" — 未觸發")+"</div></div>"}).join("");
+const title=m.event_title||((m.home_team||"")+(m.away_team?" — "+m.away_team:""));
+const url=m.polymarket_url||"#";
+return'<div class="cd '+cls+'" onclick="this.classList.toggle(\'exp\')"><div class="cd-h"><div><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span class="lb" style="color:'+lc+";background:"+lc+'18">'+(m.league||m.sport||"")+'</span>'+
+(m.game_date?'<span style="font-size:11px;color:#6b7280">'+m.game_date.split("T")[0]+'</span>':"")+
+'</div><div class="mt">'+title+'</div></div><div class="sb"><div class="la" style="color:'+cc+'">'+cn+'</div><div class="sc" style="color:'+cc+'">'+s+'<span>/4</span></div></div></div>'+
+'<div class="og"><div class="ob'+(m.suggested_side==="yes"?" sg":"")+'"><div class="tl" style="color:#10b981">YES'+(m.suggested_side==="yes"?" ★":"")+'</div>'+
+'<div class="or"><label>概率</label><span class="ov" style="background:rgba(16,185,129,.12);color:#059669;border:1px solid rgba(16,185,129,.25)">'+pct(yNow)+'</span></div>'+
+'<div class="or"><label>賠率</label><span class="ov nm">'+Number(m.home_odds||0).toFixed(2)+'x</span></div>'+
+'<div class="or"><label>變化</label><span class="dr '+(chg>0?"p":chg<0?"n":"z")+'">'+(chg>0?"▲":chg<0?"▼":"—")+" "+Math.abs(chg*100).toFixed(1)+'pp</span></div></div>'+
+'<div class="ob'+(m.suggested_side==="no"?" sg":"")+'"><div class="tl" style="color:#ef4444">NO'+(m.suggested_side==="no"?" ★":"")+'</div>'+
+'<div class="or"><label>概率</label><span class="ov" style="background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2)">'+pct(nNow)+'</span></div>'+
+'<div class="or"><label>賠率</label><span class="ov nm">'+Number(m.away_odds||0).toFixed(2)+'x</span></div>'+
+'<div class="or"><label>變化</label><span class="dr '+(chg<0?"p":chg>0?"n":"z")+'">'+(chg<0?"▲":chg>0?"▼":"—")+" "+Math.abs(chg*100).toFixed(1)+'pp</span></div></div></div>'+
+'<div class="rl">'+rh+
+'<div class="me"><span>24h Vol: <span class="v">'+(m.volume_24h?"$"+(Number(m.volume_24h)/1000).toFixed(0)+"K":"—")+'</span></span>'+
+'<span style="color:#374151">|</span><span><a href="'+url+'" target="_blank" style="color:#6b7280;text-decoration:none">Polymarket ↗</a></span>'+
+'<span style="color:#374151">|</span><span>'+Number(m.snapshot_count||0)+' snapshots</span></div></div></div>';}
+
 async function load(){try{const r=await fetch("./data/markets.json");const d=await r.json();
 document.getElementById("ts").textContent=new Date(d.generated_at).toLocaleString("en-HK");
 const s=d.stats||{};document.getElementById("s-str").textContent=s.strong_signals||0;
